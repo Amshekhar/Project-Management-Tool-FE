@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
 
     const [getToken, setToken] = useState(sessionStorage.getItem('token'));
     const [getName, setName] = useState(sessionStorage.getItem('name'));
+    const [userData, setUserData] = useState(null)
 
     const onTokenHandler = (data) => {
         // console.log(data);
@@ -20,11 +21,29 @@ export const UserProvider = ({ children }) => {
         sessionStorage.setItem('name', data);
     }
 
+    const getUserDashboard = async () => {
+        const token = sessionStorage.getItem("token");
+        // console.log(token)
+    
+        const response = await fetch('http://localhost:8143/getUserDashBoardByToken', {
+            method: 'GET',
+            headers: {
+                "token": `Bearer ${token}`
+            }
+        });
+        // console.log(response);
+        const data = await response.json();
+        setUserData(data)
+    
+    }
     const object = {
         getToken,
         getName,
         onTokenHandler,
-        onNameHandler
+        onNameHandler,
+        userData,
+        setUserData,
+        getUserDashboard
     }
 
 

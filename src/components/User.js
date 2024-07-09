@@ -4,32 +4,41 @@ import { VscFeedback } from "react-icons/vsc";
 import { GrUpdate, GrGrow } from "react-icons/gr";
 import { GoGoal } from "react-icons/go";
 import { LuFileBarChart } from "react-icons/lu";
-import { TbBrandOkRu } from 'react-icons/tb';
 import dummyUser from '../dummyUser.jpg';
 import logo from '../logo.png';
-import { getUserDashboard, updateUserProfile } from './api'; // Assuming you have API functions
+import { updateUserProfile } from './api'; // Assuming you have API functions
+import { useUser } from '../providers/userProvider';
 
 function User() {
-    const [userData, setUserData] = useState(null);
+    const { userData, setUserData, getUserDashboard } = useUser();
     const [loading, setLoading] = useState(true);
     const [updatedProfile, setUpdatedProfile] = useState({});
     const [showUpdateForm, setShowUpdateForm] = useState(false);
+    const [managerOptList, setManagerOptList] = useState(false);
+    const [engineerOptList, setEngineerOptList] = useState(false);
+    const [adminOptList, setAdminOptList] = useState(false);
 
     useEffect(() => {
-        const fetchUserDashboard = async () => {
-            const data = await getUserDashboard();
-            console.log(data);
-            if (data && Object.keys(data).length > 0) {
-                setUserData(data);
-                console.log(userData);
-                setUpdatedProfile(data);
-            } else {
-                window.location.href = '/login';
-            }
+        const fetchUserData = async () => {
+            await getUserDashboard();
             setLoading(false);
         };
-        fetchUserDashboard();
-    }, []);
+
+        fetchUserData();
+    }, [getUserDashboard]);
+
+    useEffect(() => {
+        if (userData && Object.keys(userData).length > 0) {
+            setUpdatedProfile(userData);
+            if (userData.designation === "Admin") {
+                setAdminOptList(true);
+            } else if (userData.designation === "Manager") {
+                setManagerOptList(true);
+            } else {
+                setEngineerOptList(true);
+            }
+        }
+    }, [userData]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -89,7 +98,7 @@ function User() {
                         type="text"
                         id="name"
                         name="name"
-                        value={updatedProfile.name}
+                        value={updatedProfile.name || ''}
                         onChange={handleInputChange}
                         placeholder="Enter your name"
                         className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -99,7 +108,7 @@ function User() {
                         type="text"
                         id="dob"
                         name="dob"
-                        value={updatedProfile.dob}
+                        value={updatedProfile.dob || ''}
                         onChange={handleInputChange}
                         placeholder="Enter your date of birth"
                         className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -109,7 +118,7 @@ function User() {
                         type="text"
                         id="mobileNumber"
                         name="mobileNumber"
-                        value={updatedProfile.mobileNumber}
+                        value={updatedProfile.mobileNumber || ''}
                         onChange={handleInputChange}
                         placeholder="Enter your phone"
                         className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -119,7 +128,7 @@ function User() {
                         type="text"
                         id="fatherName"
                         name="fatherName"
-                        value={updatedProfile.fatherName}
+                        value={updatedProfile.fatherName || ''}
                         onChange={handleInputChange}
                         placeholder="Enter your father's name"
                         className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -145,44 +154,49 @@ function User() {
 
     return (
         <div className='relative'>
-            
             <div className='bg-gradient-to-r absolute right-0 w-5/6 h-20 from-violet-800 to-pink-400'></div>
             <div className="user-container pt-20 bg-gray-200 flex flex-col">
                 <div className="left-sidebar fixed left-0 w-1/6 flex flex-col justify-between h-screen top-0 bg-indigo-950 text-white p-4">
-                    <div className=' overflow-y-scroll'>
+                    <div>
                         <div className='bg-white p-2 rounded-xl mb-5'>
                             <img src={logo} className='w-32' alt="logo" />
                         </div>
-                        <ul className="engineer">
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><SiMicrosoftteams className='inline' /> Profile</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><VscFeedback className='inline' /> Projects</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrUpdate className='inline' /> Deadlines</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrGrow className='inline' /> Project hours</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GoGoal className='inline' /> Feedback</li>
-                            <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Skills</li>
-                            <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Reporting</li>
-                        </ul>
-                        <ul className="admin">
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><SiMicrosoftteams className='inline' /> My Team</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><VscFeedback className='inline' /> Feedback</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrUpdate className='inline' /> Updates</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrGrow className='inline' /> Grow</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GoGoal className='inline' /> Goals</li>
-                            <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Reporting</li>
-                        </ul>
-                        <ul className="manager">
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><SiMicrosoftteams className='inline' /> My Team</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><VscFeedback className='inline' /> Feedback</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrUpdate className='inline' /> Updates</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrGrow className='inline' /> Grow</li>
-                            <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GoGoal className='inline' /> Goals</li>
-                            <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Reporting</li>
-                        </ul>
+                        {engineerOptList && (
+                            <ul className="engineer">
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><SiMicrosoftteams className='inline' /> Profile</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><VscFeedback className='inline' /> Projects</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrUpdate className='inline' /> Deadlines</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrGrow className='inline' /> Project hours</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GoGoal className='inline' /> Feedback</li>
+                                <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Skills</li>
+                                <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Reporting</li>
+                            </ul>
+                        )}
+                        {adminOptList && (
+                            <ul className="admin">
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><SiMicrosoftteams className='inline' /> My Team</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><VscFeedback className='inline' /> Feedback</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrUpdate className='inline' /> Updates</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrGrow className='inline' /> Grow</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GoGoal className='inline' /> Goals</li>
+                                <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Reporting</li>
+                            </ul>
+                        )}
+                        {managerOptList && (
+                            <ul className="manager">
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><SiMicrosoftteams className='inline' /> My Team</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><VscFeedback className='inline' /> Feedback</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrUpdate className='inline' /> Updates</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GrGrow className='inline' /> Grow</li>
+                                <li className="mb-2 rounded-md hover:bg-violet-900 font-semibold py-1 px-2 cursor-pointer"><GoGoal className='inline' /> Goals</li>
+                                <li className="cursor-pointer rounded-md hover:bg-violet-900 font-semibold py-1 px-2"> <LuFileBarChart className='inline' /> Reporting</li>
+                            </ul>
+                        )}
                     </div>
                     <div>
                         <div className="bottom-user-info border rounded-full text-white p-2 flex items-center">
                             <img src={dummyUser} alt="User" className="user-photo ml-1 h-8 w-8 rounded-full" />
-                            <button onClick={() => setShowUpdateForm(true)} className="profile-button px-4 py-2 font-bold">{ userData && userData.name || "User name"}</button>
+                            <button onClick={() => setShowUpdateForm(true)} className="profile-button px-4 py-2 font-bold">{userData && userData.name || "User name"}</button>
                         </div>
                         <button onClick={handleLogout} className='border w-full text-white font-semibold px-4 py-2 mt-3 rounded hover:bg-gradient-to-r from-violet-800 to-pink-400'>Logout</button>
                     </div>

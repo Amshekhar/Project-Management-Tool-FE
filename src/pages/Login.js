@@ -38,12 +38,13 @@ function Login() {
     console.log(getData);
     axios.post('http://localhost:8143/login', getData)
     .then((result) => {
-      onTokenHandler(result.data.token);
-      navigate('/user');
       console.log(result);
+      onTokenHandler(result.data.token);
       console.log("Login Successful");
+      navigate('/user');
     }).catch((error) => {
-      setError(error);
+      alert("This email is not registered")
+      // setError(error);
     })
   }
 
